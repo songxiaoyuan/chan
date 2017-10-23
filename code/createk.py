@@ -90,7 +90,7 @@ if __name__=='__main__':
 		longtime=600
 		shorttime=120
 		shortshorttime=20
-		ktime=longtime
+		ktime=shorttime
 		filepath='../data\\'+x
 		createk(filepath,ktime,x)
 

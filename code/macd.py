@@ -108,7 +108,7 @@ def read_data_from_csv(path):
 	return ret
 
 def main():
-	date = [20171020]
+	date = [20171023]
 	instrumentIds = ["rb1801"]
 	for day in date:
 		for instrumentId in instrumentIds:

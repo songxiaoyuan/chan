@@ -97,8 +97,9 @@ def margek(path):
 		line.append(updonglist[i])
 		i=i+1
 		writeline.append(line)
-	print writeline
+	# print writeline
 	writeToCsv(writeline,path)
+	
 def printPath(level, path):
 	global allFileNum
 	dirList = []
@@ -122,7 +123,7 @@ def printPath(level, path):
 			printPath((int(dirList[0]) + 1), path + '\\' + dl)
 	return fileList
 if __name__=='__main__': 
-	fileList=printPath(1, 'D:\py\py\py\lstm\k')
+	fileList=printPath(1, '../kdata/')
 	for x in fileList:
-		filepath='D:\py\py\py\lstm\k\\'+x
+		filepath='../kdata/'+x
 		margek(filepath)
