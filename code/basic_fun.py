@@ -26,7 +26,7 @@ def read_data_from_csv(path):
 	return ret
 
 def write_config_info(quick_ema,slow_ema,diff_array,dea_period,
-	lastlastk_array,lastk_array,midkon,config_path):
+	lastlastk_array,lastk_array,midkon,dd_val,dd_dir,config_path):
 	config_file = open(str(config_path),"w")
 	line1 = "quick_ema_val:,"+str(quick_ema)
 	line2 = "slow_ema_val:,"+str(slow_ema)
@@ -44,12 +44,14 @@ def write_config_info(quick_ema,slow_ema,diff_array,dea_period,
 	for x in xrange(0,len(lastk_array)-1):
 		line5 = line5 + "," + str(lastk_array[x])
 	line6 = "midkon:,"+str(midkon)
-	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n',line5+'\n',line6]
+	line7 = "dd_val:,"+str(dd_val)
+	line8 = "dd_dir:,"+str(dd_dir)
+	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n',line5+'\n',line6+'\n',line7+'\n',line8]
 	config_file.writelines(write_lines)
 	config_file.close()
 
 def get_config_info(quick_ema_array,slow_ema_array,diff_array,
-	lastlastk_array,lastk_array,midkone_array,config_path):
+	lastlastk_array,lastk_array,midkone_array,dd_val_array,dd_dir_array,config_path):
 	try:
 		config_file = open(config_path)
 	except Exception as e:
@@ -87,6 +89,16 @@ def get_config_info(quick_ema_array,slow_ema_array,diff_array,
 			line = line.split(',')[1:]
 			for tmp in line:
 				midkone_array.append(float(tmp.strip()))
+		elif "dd_val" in line:
+			print "this is dd_val"
+			line = line.split(',')[1:]
+			for tmp in line:
+				dd_val_array.append(float(tmp.strip()))
+		elif "dd_dir" in line:
+			print "this is dd_dir"
+			line = line.split(',')[1:]
+			for tmp in line:
+				dd_dir_array.append(float(tmp.strip()))
 		else:
 			print "this is not the config line"
 	config_file.close()

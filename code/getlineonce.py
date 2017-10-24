@@ -31,11 +31,15 @@ class getline(object):
 		self._instrumentid = param_dict["instrumentId"]
 		self._date = param_dict["date"]
 
-
+		self._dd_value=0#顶底value
+		self._dd_dir=0#1：顶  -1：低
 		self._lastlastk_array=[]#分型最左边k线
 		self._lastk_array=[]#分型中间k线
 		self._midkone=4#顶底之间中间的标志位，大于3 k线跟数大于1
 		self._updonglist = []
+
+		
+
 
 
 		# macd mesg
@@ -58,9 +62,11 @@ class getline(object):
 			quick_ema_array = []
 			slow_ema_array = []
 			midkone_array = []
+			dd_val_array = []
+			dd_dir_array = []
 			config_file = "../config/"+str(self._config_file)
 			bf.get_config_info(quick_ema_array,slow_ema_array,self._diff_array,
-				self._lastlastk_array,self._lastk_array,midkone_array,
+				self._lastlastk_array,self._lastk_array,midkone_array,dd_val_array,dd_dir_array,
 			    config_file)
 			if len(quick_ema_array)==0:
 				self._quick_ema = 0
@@ -71,6 +77,8 @@ class getline(object):
 				self._slow_ema = slow_ema_array[0]
 				self._now_bar_num = 99
 				self._midkone = midkone_array[0]
+				self._dd_value = dd_val_array[0]
+				self._dd_dir = dd_dir_array[0]
 
 	def __del__(self):
 		print "this is the over function and save the config file"
@@ -78,7 +86,7 @@ class getline(object):
 		path = "../config/" + str(self._config_file)
 		bf.write_config_info(self._quick_ema,self._slow_ema,
 			self._diff_array,self._dea_period,
-			self._lastlastk_array,self._lastk_array,self._midkone,path)
+			self._lastlastk_array,self._lastk_array,self._midkone,self._dd_value,self._dd_dir,path)
 
 		self.write_data_to_file()
 
@@ -209,11 +217,25 @@ class getline(object):
 			self._updonglist.append(0)
 		else:
 			if float(lastk[2])>float(kmesg[2]) and float(lastk[2])>float(lastlastk[2]) and float(lastk[3])>float(kmesg[3]) and float(lastk[3])>float(lastlastk[3]) and self._midkone>3:
-				self._updonglist[-1]=1
-				self._midkone=0
+				if self._dd_dir==0 or (self._dd_dir==1 and lastk[1]>self._dd_value) or self._dd_dir==-1:
+					if len(self._updonglist) ==0:
+						self._updonglist.append(1)
+					else:
+						self._updonglist[-1]=1
+					self._midkone=0
+					self._dd_dir=1
+					self._dd_value=lastk[1]
+
+
 			if float(lastk[2])<float(kmesg[2]) and float(lastk[2])<float(lastlastk[2]) and float(lastk[3])<float(kmesg[3]) and float(lastk[3])<float(lastlastk[3]) and self._midkone>3:
-				self._updonglist[-1]=-1
-				self._midkone=0
+				if self._dd_dir==0 or (self._dd_dir==-1 and lastk[1]<self._dd_value) or self._dd_dir==1:
+					if len(self._updonglist) ==0:
+						self._updonglist.append(-1)
+					else:
+						self._updonglist[-1]=-1
+					self._midkone=0
+					self._dd_dir=-1
+					self._dd_value=lastk[1]
 			self._updonglist.append(0)
 			self._lastlastk_array=lastk
 			self._lastk_array=kmesg
@@ -305,21 +327,23 @@ class getline(object):
 		for x in xrange(0,len(self._listkmsg_array)):
 			tmp = self._listkmsg_array[x]
 			tmp.append(self._updonglist[x])
-			tmp.append(round(self._macd_array[x][1],2))
-			tmp.append(round(self._macd_array[x][2],2))
-			# time = tmp[4]
-			# for line in self._parting_array:
-			# 	if line[0] == time:
-			# 		tmp.append(line[2])
-			# 		break
-			# if len(tmp) == 6:
-			# 	tmp.append(0)
+			# tmp.append(round(self._macd_array[x][1],2))
+			# tmp.append(round(self._macd_array[x][2],2))
+			time = tmp[4]
+			for line in self._parting_array:
+				if line[0] == time:
+					tmp.append(line[2])
+					break
+			if len(tmp) == 6:
+				tmp.append(0)
 			ret.append(tmp)
 		path = "../kdata/"+self._instrumentid+"_"+str(self._date)+".csv"
 		bf.write_data_to_csv(ret,path)
 
 def main():
-	date = [20171016,20171017,20171018,20171019,20171020]
+	date1 = [20171016,20171017,20171018,20171019,20171020]
+	date2 = [20171023,20171024]
+	date = date1 + date2
 	instrumentIds = ["rb1801"]
 	for day in date:
 		for instrumentId in instrumentIds:

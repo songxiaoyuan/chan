@@ -80,7 +80,8 @@ def getSqlData(myday,instrumentid):
 	conn.close () 
 
 if __name__=='__main__': 
-	data = [20171016,20171017,20171018,20171019,20171020]
+	# data = [20171016,20171017,20171018,20171019,20171020]
+	data = [20171023,20171024]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
 	instrumentid_array = ["rb1801"]
 	for myday in data:
