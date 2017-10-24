@@ -218,10 +218,7 @@ class getline(object):
 		else:
 			if float(lastk[2])>float(kmesg[2]) and float(lastk[2])>float(lastlastk[2]) and float(lastk[3])>float(kmesg[3]) and float(lastk[3])>float(lastlastk[3]) and self._midkone>3:
 				if self._dd_dir==0 or (self._dd_dir==1 and lastk[1]>self._dd_value) or self._dd_dir==-1:
-					if len(self._updonglist) ==0:
-						self._updonglist.append(1)
-					else:
-						self._updonglist[-1]=1
+					self._updonglist[-1]=1
 					self._midkone=0
 					self._dd_dir=1
 					self._dd_value=lastk[1]
@@ -229,10 +226,8 @@ class getline(object):
 
 			if float(lastk[2])<float(kmesg[2]) and float(lastk[2])<float(lastlastk[2]) and float(lastk[3])<float(kmesg[3]) and float(lastk[3])<float(lastlastk[3]) and self._midkone>3:
 				if self._dd_dir==0 or (self._dd_dir==-1 and lastk[1]<self._dd_value) or self._dd_dir==1:
-					if len(self._updonglist) ==0:
-						self._updonglist.append(-1)
-					else:
-						self._updonglist[-1]=-1
+					print len(self._updonglist)
+					self._updonglist[-1]=-1
 					self._midkone=0
 					self._dd_dir=-1
 					self._dd_value=lastk[1]
