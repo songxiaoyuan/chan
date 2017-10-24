@@ -25,15 +25,110 @@ class getline(object):
 		self._high_price = 0
 		self._low_price = 0
 
+		self._lastprice = 0
+		self._time = 0
+
 
 		self._lastlastk_array=[]#分型最左边k线
 		self._lastk_array=[]#分型中间k线
-		self._flag=0#0:方向向上，1：方向向下，合并方向
 		self._midkone=4#顶底之间中间的标志位，大于3 k线跟数大于1
 		self._updonglist = []
 
+
+		# macd mesg
+		self._quick_ema = 0
+		self._slow_ema = 0
+		self._quick_period = 12
+		self._slow_period = 26
+		self._now_bar_num = 0
+		self._diff = 0
+		self._dea = 0
+		self._dea_period = 9
+		self._diff_array = []
+
+		self._macd_array = []
+
+		self._config_file = 320
+
+		if self._now_bar_num ==0:
+			print "this is init function " + str(self._config_file)
+			quick_ema_array = []
+			slow_ema_array = []
+			midkone_array = []
+			config_file = "../config/"+str(self._config_file)
+			bf.get_config_info(quick_ema_array,slow_ema_array,self._diff_array,
+				self._lastlastk_array,self._lastk_array,midkone_array,
+			    config_file)
+			if len(quick_ema_array)==0:
+				self._quick_ema = 0
+				self._slow_ema = 0 
+				self._midkone = 4
+			else:
+				self._quick_ema = quick_ema_array[0]
+				self._slow_ema = slow_ema_array[0]
+				self._now_bar_num = 99
+				self._midkone = midkone_array[0]
+
+	def __del__():
+		print "this is the over function and save the config file"
+		self.over_fun()
+		path = "../config/" + str(self._config_file)
+		bf.write_config_info(self._quick_ema,self._slow_ema,
+			self._diff_array,self._dea_period,
+			self._lastlastk_array,self._lastk_array,self._midkone,path)
+
+	def over_fun():
+		# save the last k mesg
+		tmp = []
+		tmp.append(self._open_price)
+		tmp.append(self._close_price)
+		tmp.append(self._high_price)
+		tmp.append(self._low_price)
+		tmp.append(self._time)
+		self._listkmsg_array.append(tmp)
+
+		# mergek and create the parting
+		self.mergek(tmp)
+		self.get_merge_line(self._listkmsg_array,self._updonglist)
+
+		diff_val = self.get_diff_val(self._lastprice)
+		self._diff_array.append(diff_val)
+		dea_val = self.get_dea_val()
+		tmp = [self._time,diff_val,dea_val]
+		self._macd_array.append(tmp)
+
+	def get_diff_val(self,lastprice):
+		if self._now_bar_num < self._quick_period:
+			tmp = float((self._now_bar_num - 1) * self._quick_ema + 2 * lastprice)/(self._now_bar_num + 1)
+		else:
+			tmp = float((self._quick_period - 1) * self._quick_ema + 2 * lastprice)/(self._quick_period + 1)
+		self._quick_ema = tmp
+
+		if self._now_bar_num < self._slow_period:
+			tmp = float((self._now_bar_num - 1) * self._slow_ema + 2 * lastprice)/(self._now_bar_num + 1)
+		else:
+			tmp = float((self._slow_period - 1) * self._slow_ema + 2 * lastprice)/(self._slow_period + 1)
+		self._slow_ema = tmp
+		return self._quick_ema - self._slow_ema
+
+	def get_dea_val(self):
+		l = len(self._diff_array)
+		sum_val = 0
+		if l < self._dea_period:
+			for x in xrange(0,l):
+				sum_val += self._diff_array[x]
+			ret = sum_val/l
+			return ret
+		else:
+			left = l - self._dea_period
+			for x in xrange(left,l):
+				sum_val += self._diff_array[x]
+			ret = sum_val/self._dea_period
+			return ret
+
 	def create_k(self,time,lastprice):
 		self._k_bar_tick +=1
+		self._close_price = lastprice
 		if self._k_bar_tick ==1:
 			self._open_price = lastprice
 			self._close_price = lastprice
@@ -176,8 +271,8 @@ class getline(object):
 			return 0
 
 	def get_md_line(self,line):
-		lastprice = float(line[LASTPRICE])
-		time = line[DATE]+" "+line[TIME]
+		self._lastprice = float(line[LASTPRICE])
+		self._time = line[DATE]+" "+line[TIME]
 		kmesg = self.create_k(time,lastprice)
 		if len(kmesg) ==0:
 			return 
@@ -185,6 +280,12 @@ class getline(object):
 			# get one k line
 			self.mergek(kmesg)
 			self.get_merge_line(self._listkmsg_array,self._updonglist)
+			# caculate the macd
+			diff_val = self.get_diff_val(self._lastprice)
+			self._diff_array.append(diff_val)
+			dea_val = self.get_dea_val()
+			tmp = [self._time,diff_val,dea_val]
+			self._macd_array.append(tmp)
 		
 
 	def get_line_data(self):
