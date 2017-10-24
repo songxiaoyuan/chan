@@ -95,3 +95,8 @@ if __name__=='__main__':
 		createk(filepath,ktime,x)
 
 	
+
+
+MID :  MA(CLOSE,N);
+UPPER: MID + P*STD(CLOSE,N);
+LOWER: MID - P*STD(CLOSE,N);
