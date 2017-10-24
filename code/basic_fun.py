@@ -9,7 +9,7 @@ def get_ema_data(lastprice,pre_ema_val,period):
 	tmp = float(((period -1)*pre_ema_val + 2*lastprice))/(period + 1)
 	return tmp
 
-def write_data_to_csv(path,data):
+def write_data_to_csv(data,path):
 	csvfile = file(path, 'wb')
 	writer = csv.writer(csvfile)
  	writer.writerows(data)
