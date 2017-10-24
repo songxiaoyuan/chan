@@ -14,7 +14,7 @@ LOW = 3
 
 class getline(object):
 	"""docstring for getline"""
-	def __init__(self):
+	def __init__(self,param_dict):
 		super(getline, self).__init__()
 		self._parting_array = []
 		self._listkmsg_array = []
@@ -27,6 +27,9 @@ class getline(object):
 
 		self._lastprice = 0
 		self._time = 0
+
+		self._instrumentid = param_dict["instrumentId"]
+		self._date = param_dict["date"]
 
 
 		self._lastlastk_array=[]#分型最左边k线
@@ -69,7 +72,7 @@ class getline(object):
 				self._now_bar_num = 99
 				self._midkone = midkone_array[0]
 
-	def __del__():
+	def __del__(self):
 		print "this is the over function and save the config file"
 		self.over_fun()
 		path = "../config/" + str(self._config_file)
@@ -77,7 +80,9 @@ class getline(object):
 			self._diff_array,self._dea_period,
 			self._lastlastk_array,self._lastk_array,self._midkone,path)
 
-	def over_fun():
+		self.write_data_to_file()
+
+	def over_fun(self):
 		# save the last k mesg
 		tmp = []
 		tmp.append(self._open_price)
@@ -98,6 +103,7 @@ class getline(object):
 		self._macd_array.append(tmp)
 
 	def get_diff_val(self,lastprice):
+		self._now_bar_num +=1
 		if self._now_bar_num < self._quick_period:
 			tmp = float((self._now_bar_num - 1) * self._quick_ema + 2 * lastprice)/(self._now_bar_num + 1)
 		else:
@@ -273,7 +279,7 @@ class getline(object):
 	def get_md_line(self,line):
 		self._lastprice = float(line[LASTPRICE])
 		self._time = line[DATE]+" "+line[TIME]
-		kmesg = self.create_k(time,lastprice)
+		kmesg = self.create_k(self._time,self._lastprice)
 		if len(kmesg) ==0:
 			return 
 		else:
@@ -288,35 +294,45 @@ class getline(object):
 			self._macd_array.append(tmp)
 		
 
-	def get_line_data(self):
+	def write_data_to_file(self):
 		ret = []
+		if len(self._listkmsg_array) !=  len(self._updonglist):
+			print "len(self._listkmsg_array) !=  len(self._updonglist)"
+			return
+		if len(self._listkmsg_array) !=  len(self._macd_array):
+			print "len(self._listkmsg_array) !=  len(self._macd_array)"
+			return
 		for x in xrange(0,len(self._listkmsg_array)):
 			tmp = self._listkmsg_array[x]
 			tmp.append(self._updonglist[x])
-			time = tmp[4]
-			for line in self._parting_array:
-				if line[0] == time:
-					tmp.append(line[2])
-					break
-			if len(tmp) == 6:
-				tmp.append(0)
+			tmp.append(round(self._macd_array[x][1],2))
+			tmp.append(round(self._macd_array[x][2],2))
+			# time = tmp[4]
+			# for line in self._parting_array:
+			# 	if line[0] == time:
+			# 		tmp.append(line[2])
+			# 		break
+			# if len(tmp) == 6:
+			# 	tmp.append(0)
 			ret.append(tmp)
-		return ret
+		path = "../kdata/"+self._instrumentid+"_"+str(self._date)+".csv"
+		bf.write_data_to_csv(ret,path)
 
 def main():
-	date = [20171023]
+	date = [20171016,20171017,20171018,20171019,20171020]
 	instrumentIds = ["rb1801"]
 	for day in date:
 		for instrumentId in instrumentIds:
-			getline_obj = getline()
+			param_dict = {"instrumentId":instrumentId,"date":day}
+			getline_obj = getline(param_dict)
 			path = '../data/'+instrumentId + '_' + str(day) + '.csv'
 			data = bf.read_data_from_csv(path)
 
 			for line in data:
 				tmp = getline_obj.get_md_line(line)
-			data = getline_obj.get_line_data()
-			path = '../kdata/'+instrumentId + '_' + str(day) + '_total.csv'
-			bf.write_data_to_csv(data,path)
+			# data = getline_obj.get_line_data()
+			# path = '../kdata/'+instrumentId + '_' + str(day) + '_total.csv'
+			# bf.write_data_to_csv(data,path)
 
 
 if __name__=='__main__': 

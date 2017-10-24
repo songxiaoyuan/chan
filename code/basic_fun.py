@@ -25,7 +25,8 @@ def read_data_from_csv(path):
 	# only get the day data
 	return ret
 
-def write_config_info(quick_ema,slow_ema,diff_array,dea_period,config_path):
+def write_config_info(quick_ema,slow_ema,diff_array,dea_period,
+	lastlastk_array,lastk_array,midkon,config_path):
 	config_file = open(str(config_path),"w")
 	line1 = "quick_ema_val:,"+str(quick_ema)
 	line2 = "slow_ema_val:,"+str(slow_ema)
@@ -35,11 +36,20 @@ def write_config_info(quick_ema,slow_ema,diff_array,dea_period,config_path):
 		left = 0
 	for i in xrange(left,len(diff_array)):
 		line3 = line3 + "," + str(diff_array[i])
-	write_lines = [line1+'\n',line2+'\n',line3+'\n']
+	line4 = "lastlastk_array:"
+	# "dont save the k mesg time"
+	for x in xrange(0,len(lastlastk_array)-1):
+		line4 = line4 + "," + str(lastlastk_array[x])
+	line5 = "lastk_array:"
+	for x in xrange(0,len(lastk_array)-1):
+		line5 = line5 + "," + str(lastk_array[x])
+	line6 = "midkon:,"+str(midkon)
+	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n',line5+'\n',line6]
 	config_file.writelines(write_lines)
 	config_file.close()
 
-def get_config_info(quick_ema_array,slow_ema_array,diff_array,config_path):
+def get_config_info(quick_ema_array,slow_ema_array,diff_array,
+	lastlastk_array,lastk_array,midkone_array,config_path):
 	try:
 		config_file = open(config_path)
 	except Exception as e:
@@ -58,10 +68,25 @@ def get_config_info(quick_ema_array,slow_ema_array,diff_array,config_path):
 			slow_ema_array.append(float(line[1].strip()))
 			# print "the length of lastprice is: " + str(len(lastprice_array))
 		elif "diff_array" in line:
-			print "this is rsiarray"
+			print "this is diff_array"
 			line = line.split(',')[1:]
 			for tmp in line:
 				diff_array.append(float(tmp.strip()))
+		elif "lastlastk_array" in line:
+			print "this is lastlastk_array"
+			line = line.split(',')[1:]
+			for tmp in line:
+				lastlastk_array.append(float(tmp.strip()))
+		elif "lastk_array" in line:
+			print "this is lastk_array"
+			line = line.split(',')[1:]
+			for tmp in line:
+				lastk_array.append(float(tmp.strip()))
+		elif "midkon" in line:
+			print "this is midkon"
+			line = line.split(',')[1:]
+			for tmp in line:
+				midkone_array.append(float(tmp.strip()))
 		else:
 			print "this is not the config line"
 	config_file.close()
