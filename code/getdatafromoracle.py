@@ -88,7 +88,7 @@ if __name__=='__main__':
 	data = data1+data2+data3+data4+data5
 	# data =[20170927]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1801"]
+	instrumentid_array = ["ru1801","zn1712","pb1712"]
 	for myday in data:
 		for instrumentid in instrumentid_array:
 			getSqlData(myday,instrumentid)

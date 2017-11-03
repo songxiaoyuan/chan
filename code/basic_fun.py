@@ -15,6 +15,15 @@ def write_data_to_csv(data,path):
  	writer.writerows(data)
 	csvfile.close()
 
+def write_data_to_csv_add(data,path):
+	csvfile = file('path', 'ab+')
+	writer = csv.writer(csvfile)
+ 	writer.writerows(data)
+	csvfile.close()
+def write_zhongshu(data,path):
+	f = open(path,'a')
+	f.write(data)
+	f.close()
 def read_data_from_csv(path):
 	f = open(path,'rb')
 	reader = csv.reader(f)
@@ -49,6 +58,60 @@ def write_config_info(quick_ema,slow_ema,diff_array,dea_period,
 	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n',line5+'\n',line6+'\n',line7+'\n',line8]
 	config_file.writelines(write_lines)
 	config_file.close()
+def get_zhongshu_msg(path,zs_now_upvalue,zs_now_downvalue,zs_now_uptime,zs_now_downtime,zs_now_dir,zs_now_zoushilist,
+				zs_last_upvalue,zs_last_downvalue,zs_last_uptime,zs_last_downtime,zs_last_dir,zs_last_zoushilist):
+	try:
+		file = open(path)
+	except Exception as e:
+		file = open(path,"w")
+		return
+	lines = file.readlines()
+	if len(lines)==0:
+		return
+	if len(lines)==1:
+		splitline=lines[0].split(',')
+		zs_now_upvalue=float(splitline[0])
+		zs_now_uptime=splitline[1]
+		zs_now_downvalue=float(splitline[2])
+		zs_now_downtime=splitline[3]
+		zs_now_dir=int(splitline[4])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[0]))
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[1]))
+		zs_now_zoushilist.append(int((splitline[5].split('_'))[2]))
+		zs_now_zoushilist.append(splitline[5].split('_')[3])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[4]))
+		zs_now_zoushilist.append(splitline[5].split('_')[5])
+
+	if len(lines)>1:
+		splitline=lines[-1].split(',')
+		zs_now_upvalue=float(splitline[0])
+		zs_now_uptime=splitline[1]
+		zs_now_downvalue=float(splitline[2])
+		zs_now_downtime=splitline[3]
+		zs_now_dir=int(splitline[4])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[0]))
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[1]))
+		zs_now_zoushilist.append(int((splitline[5].split('_'))[2]))
+		zs_now_zoushilist.append(splitline[5].split('_')[3])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[4]))
+		zs_now_zoushilist.append(splitline[5].split('_')[5])
+
+		splitline=lines[-2].split(',')
+		zs_last_upvalue=float(splitline[0])
+		zs_last_uptime=splitline[1]
+		zs_last_downvalue=float(splitline[2])
+		zs_last_downtime=splitline[3]
+		zs_last_dir=int(splitline[4])
+		zs_last_zoushilist.append(float((splitline[5].split('_'))[0]))
+		zs_last_zoushilist.append(float((splitline[5].split('_'))[1]))
+		zs_last_zoushilist.append(int((splitline[5].split('_'))[2]))
+		zs_last_zoushilist.append(splitline[5].split('_')[3])
+		zs_last_zoushilist.append(float((splitline[5].split('_'))[4]))
+		zs_last_zoushilist.append(splitline[5].split('_')[5])
+
+
+
+
 
 def get_config_info(quick_ema_array,slow_ema_array,diff_array,
 	lastlastk_array,lastk_array,midkone_array,dd_val_array,dd_dir_array,config_path):
