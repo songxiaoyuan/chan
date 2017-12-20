@@ -15,6 +15,15 @@ def write_data_to_csv(data,path):
  	writer.writerows(data)
 	csvfile.close()
 
+def write_data_to_csv_add(data,path):
+	csvfile = file('path', 'ab+')
+	writer = csv.writer(csvfile)
+ 	writer.writerows(data)
+	csvfile.close()
+def write_txt(data,path):
+	f = open(path,'a')
+	f.write(data)
+	f.close()
 def read_data_from_csv(path):
 	f = open(path,'rb')
 	reader = csv.reader(f)
@@ -25,9 +34,28 @@ def read_data_from_csv(path):
 	# only get the day data
 	return ret
 
-def write_config_info(quick_ema,slow_ema,diff_array,dea_period,
+def write_config_info(long_position,short_position,_parting_array_last,zs_now_dir,zs_index,quick_ema,slow_ema,diff_array,dea_period,
 	lastlastk_array,lastk_array,midkon,dd_val,dd_dir,config_path):
 	config_file = open(str(config_path),"w")
+	line0 = "zs_index:,"+str(zs_index)
+	line00 = "zs_now_dir:,"+str(zs_now_dir)
+	line000 = "long_position:,"+str(long_position)
+	line0000 = "short_position:,"+str(short_position)
+	
+
+	line00000 = "outbar_parting_array_last:"
+	for x in xrange(0,len(_parting_array_last)):
+		line00000 = line00000 + "," + str(_parting_array_last[x])
+	# line000000 = "inbar_parting_array_last:"
+	# for x in xrange(0,len(_inbar_parting_array_last)):
+	# 	line000000 = line000000 + "," + str(_inbar_parting_array_last[x])
+
+	# line0000000 = "redmacdbar:,"+str(redmacdbar)
+	# line00000000 = "greenmacdbar:,"+str(greenmacdbar)
+	# line000000000 = "macd_bar_short_list:"
+	# for x in xrange(0,len(macd_bar_short_list)):
+	# 	line000000000 = line000000000 + "," + str(macd_bar_short_list[x])
+
 	line1 = "quick_ema_val:,"+str(quick_ema)
 	line2 = "slow_ema_val:,"+str(slow_ema)
 	line3 = "diff_array:"
@@ -38,19 +66,76 @@ def write_config_info(quick_ema,slow_ema,diff_array,dea_period,
 		line3 = line3 + "," + str(diff_array[i])
 	line4 = "lastlastk_array:"
 	# "dont save the k mesg time"
-	for x in xrange(0,len(lastlastk_array)-1):
+	for x in xrange(0,len(lastlastk_array)):
 		line4 = line4 + "," + str(lastlastk_array[x])
 	line5 = "lastk_array:"
-	for x in xrange(0,len(lastk_array)-1):
+	for x in xrange(0,len(lastk_array)):
 		line5 = line5 + "," + str(lastk_array[x])
 	line6 = "midkon:,"+str(midkon)
 	line7 = "dd_val:,"+str(dd_val)
 	line8 = "dd_dir:,"+str(dd_dir)
-	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n',line5+'\n',line6+'\n',line7+'\n',line8]
+	write_lines = [line0+'\n',line00+'\n',line000+'\n',line0000+'\n',line00000+'\n',line1+'\n',line2+'\n',line3+'\n',line4+'\n',line5+'\n',line6+'\n',line7+'\n',line8]
 	config_file.writelines(write_lines)
 	config_file.close()
+def get_zhongshu_msg(path,zs_now_upvalue,zs_now_downvalue,zs_now_uptime,zs_now_downtime,zs_now_dir,zs_now_zoushilist,
+				zs_last_upvalue,zs_last_downvalue,zs_last_uptime,zs_last_downtime,zs_last_dir,zs_last_zoushilist):
+	try:
+		file = open(path)
+	except Exception as e:
+		file = open(path,"w")
+		return
+	lines = file.readlines()
+	if len(lines)==0:
+		return
+	if len(lines)==1:
+		splitline=lines[0].split(',')
+		zs_now_upvalue=float(splitline[0])
+		zs_now_uptime=splitline[1]
+		zs_now_downvalue=float(splitline[2])
+		zs_now_downtime=splitline[3]
+		zs_now_dir=int(splitline[4])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[0]))
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[1]))
+		zs_now_zoushilist.append(int((splitline[5].split('_'))[2]))
+		zs_now_zoushilist.append(splitline[5].split('_')[3])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[4]))
+		zs_now_zoushilist.append(float(splitline[5].split('_')[5]))
+		zs_now_zoushilist.append(splitline[5].split('_')[6])
 
-def get_config_info(quick_ema_array,slow_ema_array,diff_array,
+	if len(lines)>1:
+		splitline=lines[-1].split(',')
+		zs_now_upvalue=float(splitline[0])
+		zs_now_uptime=splitline[1]
+		zs_now_downvalue=float(splitline[2])
+		zs_now_downtime=splitline[3]
+		zs_now_dir=int(splitline[4])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[0]))
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[1]))
+		zs_now_zoushilist.append(int((splitline[5].split('_'))[2]))
+		zs_now_zoushilist.append(splitline[5].split('_')[3])
+		zs_now_zoushilist.append(float((splitline[5].split('_'))[4]))
+		zs_now_zoushilist.append(float(splitline[5].split('_')[5]))
+		zs_now_zoushilist.append(splitline[5].split('_')[6])
+
+		splitline=lines[-2].split(',')
+		zs_last_upvalue=float(splitline[0])
+		zs_last_uptime=splitline[1]
+		zs_last_downvalue=float(splitline[2])
+		zs_last_downtime=splitline[3]
+		zs_last_dir=int(splitline[4])
+		zs_last_zoushilist.append(float((splitline[5].split('_'))[0]))
+		zs_last_zoushilist.append(float((splitline[5].split('_'))[1]))
+		zs_last_zoushilist.append(int((splitline[5].split('_'))[2]))
+		zs_last_zoushilist.append(splitline[5].split('_')[3])
+		zs_last_zoushilist.append(float((splitline[5].split('_'))[4]))
+		zs_last_zoushilist.append(float((splitline[5].split('_'))[5]))
+		zs_last_zoushilist.append(splitline[5].split('_')[6])
+
+
+
+
+
+def get_config_info(long_position,short_position,_parting_array_last,zs_dir_array,zs_index_array,quick_ema_array,slow_ema_array,diff_array,
 	lastlastk_array,lastk_array,midkone_array,dd_val_array,dd_dir_array,config_path):
 	try:
 		config_file = open(config_path)
@@ -64,6 +149,32 @@ def get_config_info(quick_ema_array,slow_ema_array,diff_array,
 			print "this is quick_ema_val"
 			line = line.split(',')
 			quick_ema_array.append(float(line[1].strip()))
+		elif "zs_index" in line:
+			
+			line = line.split(',')
+			zs_index_array.append(float(line[1].strip()))
+			print "this is zs_index    ",zs_index_array[0]
+		
+		elif "zs_now_dir" in line:
+			
+			line = line.split(',')
+			zs_dir_array.append(round(float(line[1].strip())))
+			print "this is zs_dir_array    "
+		elif "long_position" in line:
+			
+			line = line.split(',')
+			long_position.append(round(float(line[1].strip())))
+			print "this is long_position    "
+		elif "short_position" in line:
+			
+			line = line.split(',')
+			short_position.append(round(float(line[1].strip())))
+			print "this is short_position    "
+		elif "outbar_parting_array_last" in line:
+			print "this is parting_array_last   ",line
+			line = line.split(',')[1:]
+			for tmp in line:
+				_parting_array_last.append(tmp.strip())
 		elif "slow_ema_val" in line:
 			print "this is slow_ema_val"
 			line = line.split(',')
@@ -77,13 +188,17 @@ def get_config_info(quick_ema_array,slow_ema_array,diff_array,
 		elif "lastlastk_array" in line:
 			print "this is lastlastk_array"
 			line = line.split(',')[1:]
-			for tmp in line:
+			index=len(line)
+			for x in range(0,index-1):
 				lastlastk_array.append(float(tmp.strip()))
+			lastlastk_array.append(tmp.strip())
 		elif "lastk_array" in line:
 			print "this is lastk_array"
 			line = line.split(',')[1:]
-			for tmp in line:
-				lastk_array.append(float(tmp.strip()))
+			index=len(line)
+			for x in range(0,index-1):
+				lastlastk_array.append(float(tmp.strip()))
+			lastlastk_array.append(tmp.strip())
 		elif "midkon" in line:
 			print "this is midkon"
 			line = line.split(',')[1:]
